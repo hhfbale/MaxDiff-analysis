@@ -1,28 +1,40 @@
 import csv as csv
-import pandas as pd
-import numpy as np
 
-attr = ["informasjon og rådgivning", "farmasøytassistent", "lagerstyring", "optimal medisinering", "språkstøtte"]
-
-def read_csv(file_path):
-    with open(file_path, 'r') as file:
-        reader = csv.reader(file)
-        data = [row for row in reader]
-    return data
-
-def get_start_index(data):
-    for i in range(len(data[0])):
-        if data[0][i] == "Sett 1: Evaluer følgende moduler":
-            return i
+def calculate_maxdiff_scores(row):
+    """
+    Calculate MaxDiff scores using best-worst counting method.
+    Returns a dictionary with the scores for each attribute.
+    """
+    attributes = [
+        "Informasjon og rådgivning",
+        "Farmasøytassistent",
+        "Lagerstyring",
+        "Optimal medisinering",
+        "Språkstøtte"
+    ]
+    
+    # Initialize counters for each attribute
+    best_counts = {attr: 0 for attr in attributes}
+    worst_counts = {attr: 0 for attr in attributes}
+    
+    # Count best and worst selections across all 10 sets
+    for i in range(1, 11):
+        best_col = f'Rangering nr. {i}: Velg den MEST viktige modulen'
+        worst_col = f'Rangering nr. {i}: Velg den MINST viktige modulen'
         
-def get_end_index(data):
-    for i in range(len(data[0])):
-        if data[0][i] == "Sett 10: Evaluer følgende moduler":
-            return i
+        best_choice = row[best_col]
+        worst_choice = row[worst_col]
         
-# def sum_maxdiff(data):
-#     start_index = get_start_index(data)
-#     end_index = get_end_index(data)
-#     for i in range(start_index, end_index):
-#         print(data[i])
-        
+        best_counts[best_choice] += 1
+        worst_counts[worst_choice] += 1
+    
+    # Calculate total scores (best - worst)
+    scores = {}
+    for attr in attributes:
+        scores[attr] = {
+            'Best': best_counts[attr],
+            'Worst': worst_counts[attr],
+            'Total': best_counts[attr] - worst_counts[attr]
+        }
+    
+    return scores
