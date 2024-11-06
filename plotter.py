@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from statAnalysis import extract_attribute_scores
 
 def plot_respondent_scores(respondent):
     """
@@ -224,5 +225,70 @@ def plot_maxdiff_detailed(respondent):
                  fontsize=10, 
                  style='italic')
     
+    plt.tight_layout()
+    return fig
+
+def plot_distributions(respondents,attributes):
+    """
+    Create visualization of MaxDiff score distributions,
+    optimized for discrete values between -6 and +6
+    """
+    
+    # Create subplot grid
+    fig, axes = plt.subplots(len(attributes), 1, figsize=(12, 3*len(attributes)))
+    plt.style.use('classic')
+    
+    for i, attr in enumerate(attributes):
+        ax = axes[i]
+        scores = extract_attribute_scores(respondents, attr)
+        
+        # Count occurrences of each score
+        score_counts = pd.Series(scores).value_counts().sort_index()
+        
+        # Create bar plot
+        bars = ax.bar(score_counts.index, score_counts.values,
+                     color=['#e74c3c' if x < 0 else '#2ecc71' if x > 0 else '#3498db' for x in score_counts.index],
+                     edgecolor='black')
+        
+        # Set fixed x-axis limits and ticks
+        ax.set_xlim(-7, 7)
+        ax.set_xticks(range(-6, 7))
+        
+        # Add mean and median lines
+        mean_val = np.mean(scores)
+        median_val = np.median(scores)
+        ax.axvline(mean_val, color='red', linestyle='--', label=f'Mean: {mean_val:.2f}')
+        ax.axvline(median_val, color='blue', linestyle='--', label=f'Median: {median_val:.2f}')
+        
+        # Add zero line
+        ax.axvline(0, color='black', linestyle='-', alpha=0.2)
+        
+        # Add count labels on top of each bar
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height,
+                   f'n={int(height)}',
+                   ha='center', va='bottom')
+        
+        # Add statistical information
+        stats_text = (
+            f'n = {len(scores)}\n'
+            f'Mean = {mean_val:.2f}\n'
+            f'Median = {median_val:.2f}\n'
+            f'Std Dev = {np.std(scores):.2f}'
+        )
+        
+        ax.text(0.02, 0.95, stats_text,
+                transform=ax.transAxes, 
+                verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+        
+        # Customize plot
+        ax.set_title(f'Distribution of Scores: {attr}', pad=20, fontsize=12, fontweight='bold')
+        ax.set_xlabel('MaxDiff Score (Best - Worst)')
+        ax.set_ylabel('Number of Respondents')
+        ax.grid(True, alpha=0.3)
+        ax.legend()
+        
     plt.tight_layout()
     return fig

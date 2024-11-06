@@ -90,24 +90,24 @@ if __name__ == "__main__":
         print(f"Successfully loaded {len(respondents)} survey responses")
         
         # Example: Print first respondent's data and plot their scores
-        if respondents:
-            print("\nFirst respondent details:")
-            print(f"Age: {respondents[0].age}")
-            print(f"Role: {respondents[0].role}")
-            print(f"MaxDiff scores: {respondents[0].maxdiff}")
-            print(f"Current rankings: {respondents[0].currentRankings}")
+        # if respondents:
+        #     print("\nFirst respondent details:")
+        #     print(f"Age: {respondents[0].age}")
+        #     print(f"Role: {respondents[0].role}")
+        #     print(f"MaxDiff scores: {respondents[0].maxdiff}")
+        #     print(f"Current rankings: {respondents[0].currentRankings}")
             
-            # Plot individual scores
-            plotter.plot_respondent_scores(respondents[0])
-            plt.show()
+        #     # Plot individual scores
+        #     plotter.plot_respondent_scores(respondents[0])
+        #     plt.show()
             
-            # Plot aggregate scores
-            plotter.plot_aggregate_scores(respondents)
-            plt.show()
+        #     # Plot aggregate scores
+        #     plotter.plot_aggregate_scores(respondents)
+        #     plt.show()
 
-            # Detailed individual plot
-            plotter.plot_maxdiff_detailed(respondents[0])
-            plt.show()
-                        
+        #     # Detailed individual plot
+        #     plotter.plot_maxdiff_detailed(respondents[0])
+        #     plt.show()
+        
     except Exception as e:
         print(f"Error: {e}")
