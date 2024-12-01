@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from combineCSV import combine_csv_files
 from maxdiff_analysis import calculate_maxdiff_scores
-import plotter
+import math
 
 class Respondent:
-    def __init__(self, age, academic, role, experience, location, maxdiff, comment, currentRankings):
+    def __init__(self, age, academic, role, experience, location, maxdiff, comment, idea, currentRankings):
         self.age = age
         self.academic = academic
         self.role = role
         self.experience = experience
         self.location = location
-        self.maxdiff = maxdiff  # Will now be a dictionary with 'Best', 'Worst', and 'Total' counts
+        self.maxdiff = maxdiff # dataframe with best, worst and total score for each attribute
         self.comment = comment
+        self.idea = idea
         self.currentRankings = currentRankings
     
     def __str__(self):
@@ -42,7 +43,7 @@ def parse_survey_data(file_path):
         raise Exception(f"Error reading CSV file: {e}")
     
     respondents = []
-    
+
     for _, row in df.iterrows():
         try:
             maxdiff_scores = calculate_maxdiff_scores(row)
@@ -56,6 +57,7 @@ def parse_survey_data(file_path):
                 location=row['Hvor er du ansatt?'],
                 maxdiff=maxdiff_scores,
                 comment=row['Hvilket av de foreslåtte verktøyene skilte seg mest ut og hvorfor?'],
+                idea=row['Har du noen andre idéer eller tanker rundt et nytt digitalt verktøy?'],
                 currentRankings=current_rankings
             )
             
@@ -66,8 +68,25 @@ def parse_survey_data(file_path):
     
     return respondents
 
+def attribute_scores():
+    respondents = load_survey_data()
+    attr_scores = {
+        "Informasjon og rådgivning": [],
+        "Farmasøytassistent": [],
+        "Lagerstyring": [],
+        "Optimal medisinering": [],
+        "Språkstøtte": []
+    }
+    for respondent in respondents:
+        for attr, scores in respondent.maxdiff.items():
+            # Each maxdiff contains a dictionary with 'Best', 'Worst', 'Total'
+            # We want the 'Total' score for our list
+            attr_scores[attr].append(scores['Total'])
+    
+    # Convert to dataframe
+    return pd.DataFrame(attr_scores)
 
-# Rest of the code remains the same...
+
 def get_current_rankings(row):
     ranking_cols = [
         'Jeg er svært fornøyd med nåværende, digitale verktøy',
@@ -83,11 +102,25 @@ def get_current_rankings(row):
     
     return {col.split('med ')[-1].split(' i')[0].lower(): int(row[col]) 
             for col in ranking_cols}
+
+def extract_ideas(respondents):
+    ideas = []
+    for x in respondents:
+        if isinstance(x.idea,str):
+            ideas.append(x.idea)
+        else: ideas.append('-')
+    return ideas
+
+def extract_comment(respondents):
+    comments = []
+    for x in respondents:
+        comments.append(x.comment)
+    return comments
 # Example usage:
 if __name__ == "__main__":
     try:
         respondents = load_survey_data()
-        print(f"Successfully loaded {len(respondents)} survey responses")
+        print(extract_comment(respondents))
         
         # Example: Print first respondent's data and plot their scores
         # if respondents:

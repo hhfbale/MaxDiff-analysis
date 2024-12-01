@@ -1,4 +1,4 @@
-import csv as csv
+import pandas as pd
 
 def calculate_maxdiff_scores(row):
     """
